@@ -109,17 +109,17 @@ while (<>) {
 
     #If we encounter a problem case do this.
     if (/(SO:0000459|SO:0000722)/o) {
-        #Get its ID and store it in the %filter hash.
+        #Get the ID and store it in the %filter hash.
         my ($id) = $_ =~ /\tID=(\S+?);/o;
         print STDERR "Line $. does not have an ID as expected.\n" unless defined $id;
         $filter{$id} = undef if defined $id;
     }
     #Check child features.
     elsif (my ($parent_ids) = $_ =~ /(?:Derives_from|Parent)=(\S+?);/o) {
-        #Get the childs ID.
+        #Get the child's ID.
         my ($id) = $_ =~ /\tID=(\S+?);/o;
 
-        #If this childs's parent is a problem case, ignore
+        #If this child's parent is a problem case, ignore
         #it and store the child ID in the filter hash.
         if (grep {exists $filter{$_} } split(',',$parent_ids)) {
             $filter{$id} = undef if defined $id; #Some children don't have IDs.
