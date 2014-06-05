@@ -3,11 +3,11 @@
 Scripts useful for working with bulk FlyBase data locally.
 
 
-# Scripts
+## Scripts
 
-## GFF
+### GFF
 
-### problem_case_filter.pl -
+1. problem_case_filter.pl -
 
 A script for removing complicated biological corner cases that can
 sometimes cause issues with various analysis tools.
