@@ -15,14 +15,27 @@ dmel_r5_to_r6_converter.pl - A coorindate converter for R5 to R6 for Dmel.
 
 =head1 SYNOPSIS
 
-cat my_r5_coordinates.txt | ./dmel_r5_to_r6_converter.pl > my_r6_coordinates.txt 
+ dmel_r5_to_r6_converter.pl [options]
 
-#using bash STDERR redirection
-cat my_r5_coordinates.txt | ./dmel_r5_to_r6_converter.pl > my_r6_coordinates.txt 2> conversion_failures.txt
+ Options:
+ --output The file to write R6 coordinates to.
+ --input The file to read R5 coordinates from.
+ --mapfile The R5 to R6 coordinate mapping source file.
+ --help  Print a help message
+ --debug Print debug information to STDERR
+ --man Show a man page help doc.
+    
+see L<Options> for full details.
 
-./dmel_r5_to_r6_converter.pl --input my_r5_coordinates.txt --output my_r6_coordinates.txt
+ e.g.
+ cat my_r5_coordinates.txt | ./dmel_r5_to_r6_converter.pl > my_r6_coordinates.txt 
 
-./dmel_r5_to_r6_converter.pl --input my_r5_coordinates.txt --mapfile /path/to/my/own/mapping/file.tsv > my_r6_coordinates.txt
+ #using bash STDERR redirection
+ cat my_r5_coordinates.txt | ./dmel_r5_to_r6_converter.pl > my_r6_coordinates.txt 2> conversion_failures.txt
+
+ ./dmel_r5_to_r6_converter.pl --input my_r5_coordinates.txt --output my_r6_coordinates.txt
+
+ ./dmel_r5_to_r6_converter.pl --input my_r5_coordinates.txt --mapfile /path/to/my/own/mapping/file.tsv > my_r6_coordinates.txt
 
 =head1 DESCRIPTION
 
@@ -99,17 +112,11 @@ Coordinates must be formatted accordingly:
 
 =head3 Examples
 
-2R:1..10000
-
-ChrX:330..19020
-
-4:43943..50320
-
-3R:3,020,320
-
-chr4:123020
-
-
+  2R:1..10000
+  ChrX:330..19020
+  4:43943..50320
+  3R:3,020,320
+  chr4:123020
 
 =head2 Output file format
 
