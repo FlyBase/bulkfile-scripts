@@ -17,14 +17,18 @@ dmel_r5_to_r6_converter.pl - A coorindate converter for R5 to R6 for Dmel.
 
 cat my_r5_coordinates.txt | ./dmel_r5_to_r6_converter.pl > my_r6_coordinates.txt 
 
+#using bash STDERR redirection
+cat my_r5_coordinates.txt | ./dmel_r5_to_r6_converter.pl > my_r6_coordinates.txt 2> conversion_failures.txt
+
 ./dmel_r5_to_r6_converter.pl --input my_r5_coordinates.txt --output my_r6_coordinates.txt
 
-./dmel_r5_to_r6_converter.pl --input my_r5_coordinates.txt --mapfile /path/to/my/own/mapping/file.tsv
+./dmel_r5_to_r6_converter.pl --input my_r5_coordinates.txt --mapfile /path/to/my/own/mapping/file.tsv > my_r6_coordinates.txt
 
 =head1 DESCRIPTION
 
-This script takes a list of scaffold coordinates for release 5.x
-of the D. melanogaster assembly and converts them to their release 6 equivalent.
+This script takes a list of scaffold coordinates for release 5.x (R5)
+of the D. melanogaster assembly and converts them to their release 6.x (R6) equivalent.
+Input can be supplied via STDIN or a file using the --input option.
 If no output file is specified, converted coordinates will be sent to STDOUT
 and any failures will be directed to STDERR.
 
@@ -70,18 +74,24 @@ Show help as a man page.
 
 All lines that do not meet these requirements will be ignored.
 
+When indicating a range, if the start position is larger than the stop,
+the integers will be swapped and converted.
+
+e.g.
+
+2R:10000..900 becomes 2R:900..10000 before conversion.
+
 Coordinates must be formatted accordingly:
 
 =over 5
 
 =item 1. No more than one coordinate position or coordinate range per line.
 
-
 =item 2. Scaffold names must use FlyBase approved values.  A 'Chr' prefix will be ignored and removed from output.
 
 =item 3. Location integers must only consist of digits 0-9 and/or commas ','.
 
-=item 4. A range must be indicated by two integers seperated by two periods '..'.  The smaller integer must come before the larger.
+=item 4. A range must be indicated by two integers seperated by two periods '..'. 
 
 =item 5. Scaffold names must be separated from coordinate(s) by a colon ':'.
 
