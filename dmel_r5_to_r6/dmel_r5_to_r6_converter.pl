@@ -139,7 +139,7 @@ The converted R6 coordinate position or range.
 A notes field with useful information about the nature of the conversion.
 
 This is used in situations such as inversions, coordinate ranges that span
-areas of non-identity, change of scaffold name, and others.
+a region(s) of change, change of scaffold name, and others.
 
 =back
 
@@ -412,13 +412,13 @@ sub getConvertedCoord {
     my $note = " ";    # should not be null
 
     if ( $newstart eq '?' || $newend eq '?' ) {
-        $note = "failed: in area of non-identity";
+        $note = "failed: coordinates fully contained in region of change";
     }
     elsif ( $shifts == 1 ) {
-        $note = "includes 1 area of non-identity";
+        $note = "spans 1 region of change";
     }
     elsif ( $shifts > 1 ) {
-        $note = "includes $shifts area(s) of non-identity";
+        $note = "spans $shifts region(s) of change";
     }
     if ( $newchr ne $chr ) {
         $note .= "; " unless $note eq " ";
