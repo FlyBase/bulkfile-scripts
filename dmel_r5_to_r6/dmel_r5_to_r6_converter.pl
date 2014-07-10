@@ -412,13 +412,13 @@ sub getConvertedCoord {
     my $note = " ";    # should not be null
 
     if ( $newstart eq '?' || $newend eq '?' ) {
-        $note = "failed: coordinates fully contained in region of change";
+        $note = "failed: coordinates fully within region of change";
     }
     elsif ( $shifts == 1 ) {
         $note = "spans 1 region of change";
     }
     elsif ( $shifts > 1 ) {
-        $note = "spans $shifts region(s) of change";
+        $note = "spans $shifts regions of change";
     }
     if ( $newchr ne $chr ) {
         $note .= "; " unless $note eq " ";
