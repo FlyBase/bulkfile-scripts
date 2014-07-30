@@ -347,6 +347,8 @@ sub setConversionArrays {
         }
         push( @{ $mapper->{ $version . '-' . $chr . '-newchr' } }, $newchr );
           ;                      # chromosome (might be new)
+        push( @{ $mapper->{ $version . '-' . $chr . '-inverted' } }, ($strand =~ /\-/) ? 1 : 0 );
+          ;                      # inverted area
     }
     return $mapper;
 }
@@ -454,13 +456,13 @@ sub convertRange
     ( $start, $end ) = ( $end, $start ) if $start > $end;
 
     print STDERR "Setting arrays for $chr (v$version)\n" if $debug;
-    my @ChrMapperStart = @{ $ChrMapper->{ $version . '-' . $chr . '-start' } };
-    my @ChrMapperEnd   = @{ $ChrMapper->{ $version . '-' . $chr . '-end' } };
-    my @ChrMapperDiff  = @{ $ChrMapper->{ $version . '-' . $chr . '-diff' } };
-    my @ChrMapperNewchr =
-      @{ $ChrMapper->{ $version . '-' . $chr . '-newchr' } };
-
+    my @ChrMapperStart     = @{ $ChrMapper->{ $version . '-' . $chr . '-start' } };
+    my @ChrMapperEnd       = @{ $ChrMapper->{ $version . '-' . $chr . '-end' } };
+    my @ChrMapperDiff      = @{ $ChrMapper->{ $version . '-' . $chr . '-diff' } };
+    my @ChrMapperNewchr    = @{ $ChrMapper->{ $version . '-' . $chr . '-newchr' } };
+    my @ChrMapperInversion = @{ $ChrMapper->{ $version . '-' . $chr . '-inverted' } };
     my $nstretches = $#ChrMapperStart;
+
     print "Scanning array of $nstretches stretches\n" if $debug;
     my $nbad = 0;
     for ( my $n = 0 ; $n <= $nstretches ; $n++ ) {
@@ -468,29 +470,13 @@ sub convertRange
           . $ChrMapperStart[$n] . ".."
           . $ChrMapperEnd[$n] . "\n"
           if $debug;
-        next if ( $ChrMapperStart[$n] > $end );
+        last if ( $ChrMapperStart[$n] > $end );
         next if ( $ChrMapperEnd[$n] < $start );
 
-# if passed, then this stretch of old release somehow overlaps with requested range
-        print STDERR "    partially fits\n" if $debug;
-        if ( $start >= $ChrMapperStart[$n] && $end <= $ChrMapperEnd[$n] )
-        {    # fully within stretch
-            my $diff  = $ChrMapperDiff[$n];
-            my $npos1 = $start - $diff;
-            if ( $npos1 < 0 ) {
-                $args->{is_inversion} = 1;
-                $npos1 = -$npos1;
-            }
-            my $npos2 = $end - $diff;
-            if ( $npos2 < 0 ) {
-                $args->{is_inversion} = 1;
-                $npos2 = -$npos2;
-            }
-            ( $npos1, $npos2 ) = ( $npos2, $npos1 ) if $npos1 > $npos2;
-            return ( $ChrMapperNewchr[$n], 0, $npos1, $npos2,
-                $args->{is_inversion} );
-        }
-        else {
+        #if passed, then this stretch of old release somehow overlaps with requested range
+        print STDERR "    overlaps (diff " . $ChrMapperDiff[$n] . ") newchr " . $ChrMapperNewchr[$n] . "\n" if $debug;
+        if ($ChrMapperInversion[$n]) {
+            $args->{is_inversion} = 1;
             $nbad++;
         }
     }
@@ -511,11 +497,11 @@ sub convertPosition {
 
     print STDERR "Decoding position $chr:$pos (v$version)\n" if $debug;
     print STDERR "Setting arrays for $chr (v$version)\n"     if $debug;
-    my @ChrMapperStart = @{ $ChrMapper->{ $version . '-' . $chr . '-start' } };
-    my @ChrMapperEnd   = @{ $ChrMapper->{ $version . '-' . $chr . '-end' } };
-    my @ChrMapperDiff  = @{ $ChrMapper->{ $version . '-' . $chr . '-diff' } };
-    my @ChrMapperNewchr =
-      @{ $ChrMapper->{ $version . '-' . $chr . '-newchr' } };
+    my @ChrMapperStart      = @{ $ChrMapper->{ $version . '-' . $chr . '-start' } };
+    my @ChrMapperEnd        = @{ $ChrMapper->{ $version . '-' . $chr . '-end' } };
+    my @ChrMapperDiff       = @{ $ChrMapper->{ $version . '-' . $chr . '-diff' } };
+    my @ChrMapperNewchr     = @{ $ChrMapper->{ $version . '-' . $chr . '-newchr' } };
+    my @ChrMapperInversion  = @{ $ChrMapper->{ $version . '-' . $chr . '-inverted' } };
 
     my $nstretches = $#ChrMapperStart;
     for ( my $n = 0 ; $n <= $nstretches ; $n++ ) {
@@ -526,10 +512,9 @@ sub convertPosition {
         next if ( $ChrMapperEnd[$n] < $pos );
         last if ( $ChrMapperStart[$n] > $pos );
         my $newpos = $pos - $ChrMapperDiff[$n];
-        if ( $newpos < 0 ) {
-            $args->{is_inversion} = 1;
-            $newpos = -$newpos;
-        }
+        $newpos = -$newpos if $newpos < 0;
+        $args->{is_inversion} = 1 if ($ChrMapperInversion[$n]);
+
         my $newchr = $ChrMapperNewchr[$n];
         print STDERR "$newchr:$pos => $chr:$newpos (fully in "
           . $ChrMapperStart[$n] . '-'
