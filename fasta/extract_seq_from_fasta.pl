@@ -39,13 +39,19 @@ extract_seq_from_fasta.pl - Extract select isoforms from the FlyBase FASTA files
 
 =head1 DESCRIPTION
 
-  This script exctracts the various types of sequences from the FlyBase FASTA files.
+  This script extracts various types of sequences from FlyBase FASTA files.
 
-  Currently supported extraction types are:
+  Currently supported types are:
 
   * longest
   * unique
   * by ID 
+
+  For longest and unique, the FASTA file used as input must have an FBgn ID in the ID field or the parent field.
+
+  >mygene ID=FBgn1234567;
+  or
+  >myprotein parent=FBtr1234567,FBgn1234567;
 
 =head2 Options
 
@@ -61,11 +67,11 @@ The FASTA file to read from.
 
 =item  --unique
 
-  Extract a unique sequence of a gene product (transcript, polypeptide, etc.).
+  Extract the unique sequence of a gene product (transcript, polypeptide, etc.).
 
 =item  --byid <file>
 
-  Extract sequences by their ID contained in <file>.  One ID per line.
+  Extract sequences by their ID contained in <file>.  <file> must have one ID per line.
 
 =item --help 
 
