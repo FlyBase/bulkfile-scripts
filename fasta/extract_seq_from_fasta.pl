@@ -31,7 +31,7 @@ extract_seq_from_fasta.pl - Extract select isoforms from the FlyBase FASTA files
 
  zcat dmel-all-translation.fasta.gz | ./extract_seq_from_fasta.pl --longest > extracted_isoforms.fasta
 
- ./extract_seq_from_fasta.pl --unique --fasta dmel-all-translation.fasta 
+ ./extract_seq_from_fasta.pl --unique --fasta dmel-all-translation.fasta.gz 
 
  ./extract_seq_from_fasta.pl --byid myids.txt --fasta dmel-all-translation.fasta 
 
@@ -59,7 +59,7 @@ extract_seq_from_fasta.pl - Extract select isoforms from the FlyBase FASTA files
 
 =item  --fasta <file>
 
-The FASTA file to read from.
+The FASTA file to read from.  File can be a plain text or gzip compressed FASTA file.
 
 =item  --longest
 
@@ -145,7 +145,7 @@ Extracts FASTA entries by ID from the input file.
 my $debug   = 0;
 my $help    = 0;
 my $man     = 0;
-my $input   = '-';
+my $fasta   = '-';
 my $longest = 0;
 my $byid;
 my $unique  = 0;
@@ -154,7 +154,7 @@ my $getopt = GetOptions(
   'help|?'    => \$help,
   'debug'     => \$debug,
   'man'       => \$man,
-  'input=s'   => \$input,
+  'fasta=s'   => \$fasta,
   'longest'   => \$longest,
   'unique'    => \$unique,
   'byid=s'    => \$byid,
@@ -164,12 +164,18 @@ pod2usage(1) if $help;
 pod2usage( -exitstatus => 0, -verbose => 2 ) if $man;
 
 
-my $input_fh;
-if ( $input eq '-' ) {
-  $input_fh = \*STDIN;
+my $fasta_fh;
+if ( $fasta eq '-' ) {
+  $fasta_fh = \*STDIN;
 }
 else {
-  open( $input_fh, '<', $input ) or die "Can't open input file $input: $!\n";
+  # IF FASTA file ends with .gz extension, pipe it through gunzip first.
+  if ($fasta =~ /\.gz$/) {
+    open( $fasta_fh, '-|', "gzip -dc $fasta" );
+  }
+  else {
+    open( $fasta_fh, '<', $fasta );
+  }
 }
 
 pod2usage( -exitstatus => 1, -verbose => 1, -msg => "Must specify at least one type to extract" ) unless ($longest || $unique || $byid);
@@ -183,7 +189,7 @@ if ($byid) {
 
 local $/ = '>';
 
-while (my $buf = <$input_fh>) {
+while (my $buf = <$fasta_fh>) {
   chomp $buf;
   next if ($buf =~ m/^\s*?$/);
 
