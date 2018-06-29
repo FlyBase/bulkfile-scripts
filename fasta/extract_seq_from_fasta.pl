@@ -64,6 +64,8 @@ The FASTA file to read from.  File can be a plain text or gzip compressed FASTA 
 =item  --longest
 
   Extract the longest sequence of a gene product (transcript, polypeptide, etc.).
+  If two or more isoforms share the same length the first one encountered in the 
+  file will be returned.
 
 =item  --unique
 
@@ -200,7 +202,7 @@ while (my $buf = <$fasta_fh>) {
     if (!defined $seqs->{$fbgn}) {
       $seqs->{$fbgn} = $record;
     }
-    elsif ($record->{length} >= $seqs->{$fbgn}{length}) {
+    elsif ($record->{length} > $seqs->{$fbgn}{length}) {
       $seqs->{$fbgn} = $record;
     }
     else {
@@ -273,7 +275,7 @@ sub get_fbgn {
   my $parents = get_header_value('parent',$header);
   my @fbgn = grep { /^FBgn\d+$/ } split(/,/,$parents) if ($parents);
 
-  return $id if $id =~ /^FBgn\d+$/;
+  return $id if $id && $id =~ /^FBgn\d+$/;
   return $fbgn[0] if (scalar @fbgn > 0 && $fbgn[0] =~ /^FBgn\d+$/);
   return undef;
 }
