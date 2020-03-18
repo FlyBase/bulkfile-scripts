@@ -27,3 +27,7 @@ Script for converting symbols (current or old) into their current FlyBase IDs.
 This script currently only handles Dmel genes and transcripts but could be easily modified
 to handle other species or data types.
 
+### IDs
+
+**[fbgn_updater.py](ids/fbgn_updater.py) -**
+Script for updating FBgn ids into their current FlyBase IDs.

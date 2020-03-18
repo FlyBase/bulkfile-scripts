@@ -12,7 +12,7 @@ https://wiki.flybase.org/wiki/FlyBase:Downloads_Overview#FBgn_.3C.3D.3E_Annotati
 
 Usage:
 
-./fbgn_id_updater.py your_fbgn_list.txt fbgn_annotation_ID.tsv > output.tsv
+./fbgn_updater.py your_fbgn_list.txt fbgn_annotation_ID.tsv > output.tsv
 
 Assumptions:
 * Accepts only FlyBase gene IDs (FBgn).
