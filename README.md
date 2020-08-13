@@ -2,8 +2,6 @@
 
 Scripts useful for working with bulk FlyBase data locally.
 
-Version 0.1.0
-
 ## Scripts
 
 ### FASTA
@@ -39,3 +37,7 @@ Script for updating FBgn ids into their current FlyBase IDs.
 Simple example script for querying the FlyBase GraphQL API to retrieve
 construct information for one or more genes.
 
+## Changelog 
+
+### v0.1.0 - 08/13/2020
+* Added GraphQL example
