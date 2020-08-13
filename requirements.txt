@@ -1,0 +1,10 @@
+certifi==2020.6.20
+chardet==3.0.4
+gql==2.0.0
+graphql-core==2.3.2
+idna==2.10
+promise==2.3
+requests==2.24.0
+Rx==1.6.1
+six==1.15.0
+urllib3==1.25.10
