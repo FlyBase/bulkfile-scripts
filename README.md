@@ -2,7 +2,6 @@
 
 Scripts useful for working with bulk FlyBase data locally.
 
-
 ## Scripts
 
 ### FASTA
@@ -31,3 +30,14 @@ to handle other species or data types.
 
 **[fbgn_updater.py](ids/fbgn_updater.py) -**
 Script for updating FBgn ids into their current FlyBase IDs.
+
+### GraphQL
+
+**[constructs_by_gene.py](graphql/constructs_by_gene.py) -**
+Simple example script for querying the FlyBase GraphQL API to retrieve
+construct information for one or more genes.
+
+## Changelog 
+
+### v0.1.0 - 08/13/2020
+* Added GraphQL example
