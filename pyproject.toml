@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "bulkfile-scripts"
+version = "0.1.0"
+description = "Scripts useful for working with bulk FlyBase data locally."
+authors = ["Josh Goodman <jogoodma@iu.edu>"]
+license = "BSD-3-Clause"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+gql = "^3.2.0"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
