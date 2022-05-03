@@ -60,7 +60,7 @@ def generate_inverted_symbol_dict(sym_file: str):
      my gene1, my gene2 -> ['my gene1, my gene2']
     """
     # Match commas that are not followed by a space.
-    comma_ns_re = re.compile(r',(?!\s)')
+    comma_ns_re = re.compile(r",(?!\s)")
 
     # Init the dictionary.
     symbol_dict = {}
@@ -71,13 +71,13 @@ def generate_inverted_symbol_dict(sym_file: str):
             line = line.strip()
 
             # This script only cares about genes or transcripts ignore the rest.
-            if line.startswith('FBgn') or line.startswith('FBtr'):
+            if line.startswith("FBgn") or line.startswith("FBtr"):
                 # Split out the ID column and all the others.
-                fbid, *cols = line.split('\t')
+                fbid, *cols = line.split("\t")
                 try:
                     col_len = len(cols)
                     # Dmel only.
-                    if cols[0] != 'Dmel':
+                    if cols[0] != "Dmel":
                         continue
 
                     # Symbol
@@ -88,17 +88,23 @@ def generate_inverted_symbol_dict(sym_file: str):
                         insert_symbol(cols[2], fbid, symbol_dict)
                     # Fullname synonyms
                     if col_len >= 4 and cols[3]:
-                        [insert_symbol(syn, fbid, symbol_dict) for syn in comma_ns_re.split(cols[3])]
+                        [
+                            insert_symbol(syn, fbid, symbol_dict)
+                            for syn in comma_ns_re.split(cols[3])
+                        ]
                     # Symbol synonyms
                     if col_len >= 5 and cols[4]:
-                        [insert_symbol(syn, fbid, symbol_dict) for syn in comma_ns_re.split(cols[4])]
+                        [
+                            insert_symbol(syn, fbid, symbol_dict)
+                            for syn in comma_ns_re.split(cols[4])
+                        ]
                 except IndexError:
-                    print(f'Formatting problem found in line:\n{line}', file=sys.stderr)
+                    print(f"Formatting problem found in line:\n{line}", file=sys.stderr)
                     continue
     return symbol_dict
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         # Read in arguments.
         symbols_to_check, fb_synonym = sys.argv[1:3]
@@ -106,7 +112,7 @@ if __name__ == '__main__':
         inverted_symbol_dict = generate_inverted_symbol_dict(fb_synonym)
 
         # Open their symbol file and loop over it.
-        with open(symbols_to_check, 'r') as file:
+        with open(symbols_to_check, "r") as file:
             for symbol in file:
                 symbol = symbol.strip()
                 try:
@@ -118,4 +124,7 @@ if __name__ == '__main__':
                     # Symbol doesn't exist in dictionary.
                     print(f"{symbol}")
     except ValueError:
-        print(f"Usage: {os.path.basename(__file__)} your_symbols.txt fb_synonym.tsv", file=sys.stderr)
+        print(
+            f"Usage: {os.path.basename(__file__)} your_symbols.txt fb_synonym.tsv",
+            file=sys.stderr,
+        )
