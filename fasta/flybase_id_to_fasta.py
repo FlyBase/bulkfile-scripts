@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import re
 import gzip
@@ -6,6 +8,8 @@ from pathlib import Path
 from typing import FrozenSet, Dict, List, Tuple
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
+
+# Global regexes
 FLYBASE_ID_REGEX = re.compile(r"^\s*FB\w\w\d+\s*$")
 PARENT_REGEX = re.compile(r"parent=([\w,]+);")
 
