@@ -5,6 +5,7 @@ import re
 import gzip
 import sys
 from pathlib import Path
+from textwrap import wrap
 from typing import FrozenSet, Dict, List, Tuple
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
@@ -12,6 +13,7 @@ from Bio.SeqIO.FastaIO import SimpleFastaParser
 # Global regexes
 FLYBASE_ID_REGEX = re.compile(r"^\s*FB\w\w\d+\s*$")
 PARENT_REGEX = re.compile(r"parent=([\w,]+);")
+ID_TAG_REGEX = re.compile(r"ID=(\w+);")
 
 # Types
 FlyBaseIdList = FrozenSet[str]
@@ -19,17 +21,22 @@ ParsedFastaRecords = Tuple[Tuple[str, str], ...]
 FastaIdx = Dict[str, List[int]]
 
 
-def get_parent_ids(fasta_header: str) -> FlyBaseIdList or None:
+def get_header_ids(
+    fasta_header: str, header_pattern: re.Pattern = PARENT_REGEX
+) -> FlyBaseIdList or None:
     """
-    Returns a frozen Set of FlyBase IDs from the parent= attribute of the FASTA header.
+    Returns a frozen Set of FlyBase IDs from the attribute of the FASTA header as defined by the header_pattern
+    argument. It defaults to the parent IDs.
+
     :param fasta_header: FASTA header
+    :param header_pattern: The compiled pattern to use for searching for IDs.
     :return: Frozen Set of FlyBase IDs
     """
-    parent_tags = PARENT_REGEX.findall(fasta_header)
-    parent_ids = []
-    for tag in parent_tags:
-        parent_ids.extend(tag.split(","))
-    return frozenset(parent_ids)
+    matches = header_pattern.findall(fasta_header)
+    header_ids = []
+    for match in matches:
+        header_ids.extend(match.split(","))
+    return frozenset(header_ids)
 
 
 def read_fasta(
@@ -53,15 +60,22 @@ def read_fasta(
                 # Use the SimpleFastaParser for speed since we don't need to parse the FASTA header.
                 for i, record in enumerate(SimpleFastaParser(gzfh)):
                     records.append(record)
-                    parent_ids = get_parent_ids(record[0])
-                    for parent_id in parent_ids:
-                        # Set the index for the parent ID, adding it or creating a new list.
-                        idx[parent_id] = idx.get(parent_id, []) + [i]
+                    header_ids = (
+                        *get_header_ids(record[0]),
+                        *get_header_ids(record[0], ID_TAG_REGEX),
+                    )
+
+                    for header_id in header_ids:
+                        # Set the index for the header ID, adding it or creating a new list.
+                        idx[header_id] = idx.get(header_id, []) + [i]
         else:
-            print("Only gzipped FASTA files are supported currently", file=sys.stderr)
+            print("Only gzipped FASTA files are currently supported.", file=sys.stderr)
         return tuple(records), idx
     except FileNotFoundError:
-        print(f"{fasta_file} not found", file=sys.stderr)
+        print(
+            f"{fasta_file} not found, please check that your path is correct and you have permission to read the file.",
+            file=sys.stderr,
+        )
         return None
     except IOError:
         print(f"IO Error while reading {fasta_file}", file=sys.stderr)
@@ -83,11 +97,12 @@ def fbid_to_fasta(
     with output.open("w") as fh:
         for fbid in ids:
             for i in index[fbid]:
-                fh.write(f">{fasta[i][0]}\n{fasta[i][1]}\n")
+                seq = "\n".join(wrap(fasta[i][1], width=80))
+                fh.write(f">{fasta[i][0]}\n{seq}\n")
     return None
 
 
-def read_id_file(id_file: Path) -> FlyBaseIdList:
+def read_id_file(id_file: Path) -> FlyBaseIdList or None:
     """
     Reads a file containing user supplied FlyBase IDs and returns them as a frozen set.
     :param id_file: The ID file to read in.
@@ -101,10 +116,10 @@ def read_id_file(id_file: Path) -> FlyBaseIdList:
             )
     except FileNotFoundError:
         print(f"{id_file} not found", file=sys.stderr)
-        return frozenset()
+        return None
     except IOError:
         print(f"IO Error while reading {id_file}", file=sys.stderr)
-        return frozenset()
+        return None
 
 
 if __name__ == "__main__":
@@ -135,7 +150,7 @@ if __name__ == "__main__":
     for file in args.idfile:
         # Read in the user supplied FlyBase IDs.
         ids = read_id_file(file)
-        # Set up outout file.
+        # Set up output file.
         output = Path(file.stem + ".fasta")
         if ids:
             # Write requested FASTA records to the output file.
