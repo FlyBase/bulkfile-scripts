@@ -96,9 +96,12 @@ def fbid_to_fasta(
     """
     with output.open("w") as fh:
         for fbid in ids:
-            for i in index[fbid]:
-                seq = "\n".join(wrap(fasta[i][1], width=80))
-                fh.write(f">{fasta[i][0]}\n{seq}\n")
+            try:
+                for i in index[fbid]:
+                    seq = "\n".join(wrap(fasta[i][1], width=80))
+                    fh.write(f">{fasta[i][0]}\n{seq}\n")
+            except KeyError:
+                print(f"{fbid} not found in the FASTA file", file=sys.stderr)
     return None
 
 
