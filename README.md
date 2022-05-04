@@ -8,6 +8,15 @@ Scripts useful for working with bulk FlyBase data locally.
 **[extract_seq_from_fasta.pl](fasta/extract_seq_from_fasta.pl) -**
 Extract longest, unique, and specific IDs from the FlyBase FASTA files.
 
+**[flybase_id_to_fasta.py](fasta/flybase_id_to_fasta.py) -**
+Extract FASTA sequences for lists of FlyBase IDs from gzipped FlyBase FASTA files.
+
+```shell
+python3 flybase_id_to_fasta.py --fasta /path/to/flybase.fasta.gz cluster1_ids.txt cluster2_ids.txt
+```
+
+FASTA files will be written to the same directory as the input file with the same name, but with the extension `.fasta`.
+
 ### GFF
 
 **[problem_case_filter.pl](gff/problem_case_filter.pl) -**

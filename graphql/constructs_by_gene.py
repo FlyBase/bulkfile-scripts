@@ -22,7 +22,7 @@ def get_client(url, **kwargs):
         },
         verify=False,
         retries=3,
-        **kwargs
+        **kwargs,
     )
     # Init and return GraphQL client.
     return Client(
@@ -41,7 +41,7 @@ def get_allele_query():
 
     :return: The parsed graphql query object.
     """
-    allele_query = '''
+    allele_query = """
     query($fbgn:String!) {
         gene:allelesByGene(fbgn:$fbgn, isConstruct: true) {
             id
@@ -68,7 +68,7 @@ def get_allele_query():
             }
         }
     }
-        '''
+        """
     # Parse and return the GraphQL query object
     return gql(allele_query)
 
@@ -83,12 +83,17 @@ def main():
     """
 
     # List of Genes to process.
-    fbgns = ['FBgn0000721', 'FBgn0038032',
-             'FBgn0038033', 'FBgn0005626',
-             'FBgn0003742', 'FBgn0035697']
+    fbgns = [
+        "FBgn0000721",
+        "FBgn0038032",
+        "FBgn0038033",
+        "FBgn0005626",
+        "FBgn0003742",
+        "FBgn0035697",
+    ]
 
     # Get the GQL client and query.
-    client = get_client('http://api.flybase.org/graphql')
+    client = get_client("http://api.flybase.org/graphql")
     query = get_allele_query()
 
     for fbgn in fbgns:
@@ -97,26 +102,26 @@ def main():
         result = client.execute(query, params)
 
         # Process all alleles returned for this gene.
-        gene = result['gene']
-        for allele in gene['alleles']:
-            fbal = allele['id']
+        gene = result["gene"]
+        for allele in gene["alleles"]:
+            fbal = allele["id"]
 
             # All constructs (FBtp) associated with this allele.
             # This will be a list of dictionaries with 'id' and 'symbol' as keys.
-            constructs = allele['constructs']
+            constructs = allele["constructs"]
             print(f"{fbgn} {fbal} Constructs: {constructs}")
 
             # All regulatory regions (gene; FBgn or tool; FBto) associated with the allele.
             # This will be a list of dictionaries with 'id' and 'symbol' as keys.
-            reg_regions = allele['regRegions']
+            reg_regions = allele["regRegions"]
 
             # All tag uses (controlled vocabulary term; FBcv) associated with the allele.
             # This will be a list of dictionaries with 'id' and 'name' as keys.
-            tag_uses = allele['tagUses']
+            tag_uses = allele["tagUses"]
 
             # All tagged with tools (tool; FBto) associated with the allele.
             # This will be a list of dictionaries with 'id' and 'symbol' as keys.
-            tagged_with = allele['taggedWith']
+            tagged_with = allele["taggedWith"]
 
             if len(reg_regions) > 0:
                 print(f"{fbgn} {fbal} Reg region: {reg_regions}")
@@ -129,6 +134,6 @@ def main():
         time.sleep(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
     exit(0)
